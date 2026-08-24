@@ -1,0 +1,128 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  role         String     // CITIZEN, UNIVERSITY_FACULTY, UNIVERSITY_STUDENT, INDUSTRY_CSR, GOVT_ADMIN
+  organization String?
+  district     String?
+  createdAt    DateTime   @default(now())
+
+  challenges   Challenge[]
+  projects     Project[]  @relation("FacultyMentor")
+  grants       Grant[]
+}
+
+model Challenge {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  category         String   // Water, Agriculture, Healthcare, Infrastructure, Energy, Education, Sanitation
+  subCategory      String?
+  district         String
+  locationName     String
+  latitude         Float
+  longitude        Float
+  images           String   // JSON string array or comma-separated
+  audioUrl         String?
+  status           String   @default("OPEN") // OPEN, VERIFIED, IN_PROGRESS, RESOLVED, CLUSTERED
+  urgencyScore     Int      @default(50) // 1-100
+  impactScore      Int      @default(50) // 1-100
+  upvotesCount     Int      @default(1)
+  reporterId       String?
+  reporter         User?    @relation(fields: [reporterId], references: [id])
+  
+  clusterId        String?
+  cluster          ChallengeCluster? @relation(fields: [clusterId], references: [id])
+
+  assignedUniversityId String?
+  assignedUniversity   University? @relation(fields: [assignedUniversityId], references: [id])
+
+  projects         Project[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ChallengeCluster {
+  id             String      @id @default(uuid())
+  masterTitle    String
+  domain         String
+  district       String
+  totalReports   Int         @default(1)
+  status         String      @default("ACTIVE")
+  challenges     Challenge[]
+  createdAt      DateTime    @default(now())
+}
+
+model University {
+  id                String      @id @default(uuid())
+  name              String
+  code              String      @unique
+  district          String
+  state             String      @default("Jharkhand")
+  type              String      // IIT, NIT, State Univ, Autonomous
+  departments       String      // Comma-separated or JSON string
+  facultyCount      Int         @default(50)
+  studentCount      Int         @default(1000)
+  activeProjects    Int         @default(0)
+
+  challenges        Challenge[]
+  projects          Project[]
+}
+
+model Project {
+  id                   String      @id @default(uuid())
+  title                String
+  description          String
+  challengeId          String
+  challenge            Challenge   @relation(fields: [challengeId], references: [id])
+  
+  universityId         String
+  university           University  @relation(fields: [universityId], references: [id])
+  
+  facultyMentorId      String?
+  facultyMentor        User?       @relation("FacultyMentor", fields: [facultyMentorId], references: [id])
+  
+  teamName             String
+  teamMembers          String      // JSON array of student names
+  status               String      @default("PROPOSED") // PROPOSED, APPROVED, PROTOTYPING, PILOT_TESTING, DEPLOYED, PATENTED
+  budgetRequired       Float       @default(100000)
+  budgetFunded         Float       @default(0)
+  patentStatus         String      @default("NONE") // NONE, APPLIED, GRANTED
+  
+  milestones           Milestone[]
+  grants               Grant[]
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+}
+
+model Milestone {
+  id           String    @id @default(uuid())
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  dueDate      String
+  status       String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  deliverables String?
+}
+
+model Grant {
+  id             String    @id @default(uuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id])
+  sponsorId      String
+  sponsor        User      @relation(fields: [sponsorId], references: [id])
+  amountPledged  Float
+  status         String    @default("COMMITTED") // COMMITTED, DISBURSED
+  csrCategory    String    // Environment, Rural Development, Education
+  createdAt      DateTime  @default(now())
+}
