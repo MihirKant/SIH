@@ -1,10 +1,30 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import PwaInstallBanner from '@/components/PwaInstallBanner';
+import { AuthProvider } from '@/context/AuthContext';
+import AuthModal from '@/components/AuthModal';
+
+export const viewport: Viewport = {
+  themeColor: '#166534',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
-  title: 'JanSamadhan AI - SIH Societal Innovation & University Routing Engine',
-  description: 'AI-driven crowdsourcing platform for societal challenges, HEI department matchmaking, CSR sponsorship, and district analytics.',
+  title: 'JanSamadhan | जन समाधान — Jharkhand Societal Innovation Portal',
+  description:
+    'A unified AI-driven platform connecting citizens with universities and industry to crowdsource, research, and solve societal challenges across Jharkhand.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'JanSamadhan',
+  },
 };
 
 export default function RootLayout({
@@ -13,33 +33,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        
-        {/* Sleek Footer */}
-        <footer className="border-t border-slate-900 bg-slate-950/80 py-8 text-center text-xs text-slate-500">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-slate-300">JanSamadhan AI</span>
-              <span>• Smart India Hackathon 2026</span>
-            </div>
-            <p>Empowering Jharkhand & Pan-India Communities through HEI R&D and Industry Partnerships.</p>
-            <div className="flex items-center space-x-4 text-slate-400 font-medium">
-              <span>Citizens</span>
-              <span>•</span>
-              <span>Universities</span>
-              <span>•</span>
-              <span>CSR Grants</span>
-              <span>•</span>
-              <span>NEP 2020</span>
-            </div>
-          </div>
-        </footer>
+    <html lang="hi" className="">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        {/* Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-slate-50 text-slate-900 min-h-screen flex flex-col selection:bg-green-200 selection:text-green-900 pb-16 lg:pb-0">
+        <AuthProvider>
+          <PwaInstallBanner />
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <AuthModal />
+          {/* Mobile Bottom Navigation */}
+          <MobileBottomNav />
+        </AuthProvider>
       </body>
     </html>
   );
 }
+

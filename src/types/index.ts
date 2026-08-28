@@ -5,6 +5,13 @@ export type UserRole =
   | 'INDUSTRY_CSR' 
   | 'GOVT_ADMIN';
 
+export type SubmitterType = 
+  | 'CITIZEN'
+  | 'PANCHAYAT_PRI'
+  | 'URBAN_LOCAL_BODY'
+  | 'COMMUNITY_ORG'
+  | 'GOVT_DEPARTMENT';
+
 export type ProblemCategory = 
   | 'Water Resources'
   | 'Sustainable Agriculture'
@@ -13,7 +20,10 @@ export type ProblemCategory =
   | 'Clean Energy & Power'
   | 'Education & Skill Tech'
   | 'Waste Management & Sanitation'
-  | 'E-Governance & Public Service';
+  | 'Environment & Forestry'
+  | 'Accessibility & Differently Abled'
+  | 'Rural Livelihoods & NTFP'
+  | 'Public Administration & Services';
 
 export interface ChallengeItem {
   id: string;
@@ -27,11 +37,16 @@ export interface ChallengeItem {
   longitude: number;
   images: string[];
   audioUrl?: string;
+  videoUrl?: string;
+  documents?: string[];
+  documentsName?: string[];
   status: 'OPEN' | 'VERIFIED' | 'IN_PROGRESS' | 'RESOLVED' | 'CLUSTERED';
   urgencyScore: number; // 1-100
   impactScore: number; // 1-100
   upvotesCount: number;
   reporterName?: string;
+  submitterType?: SubmitterType;
+  submitterOrgId?: string;
   clusterId?: string;
   assignedUniversityId?: string;
   assignedUniversityName?: string;
@@ -51,6 +66,18 @@ export interface UniversityItem {
   activeProjects: number;
 }
 
+export type NepCreditType = 
+  | 'CAPSTONE'
+  | 'INTERNSHIP'
+  | 'MULTIDISCIPLINARY_MINOR'
+  | 'COMMUNITY_RD';
+
+export interface StudentRoleItem {
+  name: string;
+  department: string;
+  role: string;
+}
+
 export interface ProjectItem {
   id: string;
   title: string;
@@ -60,8 +87,13 @@ export interface ProjectItem {
   universityId: string;
   universityName?: string;
   facultyMentorName?: string;
+  targetDepartment?: string;
   teamName: string;
   teamMembers: string[];
+  studentRoles?: StudentRoleItem[];
+  nepCreditType?: NepCreditType;
+  nepCreditsCount?: number;
+  billOfMaterials?: string;
   status: 'PROPOSED' | 'APPROVED' | 'PROTOTYPING' | 'PILOT_TESTING' | 'DEPLOYED' | 'PATENTED';
   budgetRequired: number;
   budgetFunded: number;

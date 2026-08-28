@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { processAiClassification } from '@/lib/aiEngine';
+import { findDuplicateAndCluster } from '@/lib/dedupEngine';
+import { INITIAL_CHALLENGES } from '@/lib/mockData';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, district, provider } = body;
+    const { title, description, district, category } = body;
 
     if (!title || !description || !district) {
       return NextResponse.json(
@@ -13,15 +14,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const aiResult = await processAiClassification(title, description, district, provider);
+    const dedupResult = findDuplicateAndCluster(
+      title,
+      description,
+      district,
+      category || 'Water Resources',
+      INITIAL_CHALLENGES
+    );
 
     return NextResponse.json({
       success: true,
-      data: aiResult,
+      data: dedupResult,
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error?.message || 'Error processing AI classification.' },
+      { success: false, error: error?.message || 'Error executing deduplication check.' },
       { status: 500 }
     );
   }

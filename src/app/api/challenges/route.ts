@@ -30,7 +30,22 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, district, locationName, latitude, longitude, reporterName, images, audioUrl } = body;
+    const { 
+      title, 
+      description, 
+      district, 
+      locationName, 
+      latitude, 
+      longitude, 
+      reporterName, 
+      submitterType,
+      submitterOrgId,
+      images, 
+      audioUrl,
+      videoUrl,
+      documents,
+      documentsName 
+    } = body;
 
     if (!title || !description || !district) {
       return NextResponse.json(
@@ -54,11 +69,16 @@ export async function POST(request: Request) {
       longitude: longitude || 85.3854,
       images: images && images.length > 0 ? images : ['https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=800'],
       audioUrl: audioUrl || undefined,
+      videoUrl: videoUrl || undefined,
+      documents: documents || [],
+      documentsName: documentsName || [],
       status: aiResult.duplicateMatchFound ? 'CLUSTERED' : 'OPEN',
       urgencyScore: aiResult.urgencyScore,
       impactScore: aiResult.impactScore,
       upvotesCount: 1,
       reporterName: reporterName || 'Anonymous Citizen',
+      submitterType: submitterType || 'CITIZEN',
+      submitterOrgId: submitterOrgId || undefined,
       assignedUniversityId: aiResult.matchedUniversityId,
       assignedUniversityName: aiResult.matchedUniversityName,
       createdAt: new Date().toISOString(),

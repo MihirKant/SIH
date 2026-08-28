@@ -2,44 +2,149 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
+  --bg-primary: #f8f9fa;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --green-primary: #166534;
+  --green-accent: #16a34a;
+  --green-light: #dcfce7;
+  --saffron: #d97706;
+  --saffron-light: #fef3c7;
+  --navy: #1e3a5f;
+}
+
+/* ─── Base Reset ────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* ─── Custom Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }
 
-.glass-panel {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* ─── Civic Card Style ──────────────────────────────────────────────────────── */
+.civic-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.civic-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
 }
 
-.glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+/* ─── Green Tricolor Accent Bar (top of page) ──────────────────────────────── */
+.tricolor-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%, #138808 100%);
+}
+
+/* ─── Devanagari Font ───────────────────────────────────────────────────────── */
+.hindi {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+/* ─── Google Translate Overrides (Light Mode) ──────────────────────────────── */
+.goog-te-gadget-simple {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 2px !important;
+  font-size: 13px !important;
+}
+.goog-te-gadget-icon {
+  display: none;
+}
+.goog-te-menu-value {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+.goog-te-menu-value span {
+  color: #0f172a !important;
+}
+body {
+  top: 0 !important;
+}
+.skiptranslate iframe {
+  display: none !important;
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.float-slow { animation: float-slow 6s ease-in-out infinite; }
+.count-up { animation: count-up 0.6s ease-out forwards; }
+
+.shimmer-text {
+  background: linear-gradient(90deg, #166534 0%, #16a34a 40%, #d97706 60%, #166534 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ─── Step connector line ───────────────────────────────────────────────────── */
+.step-connector {
+  position: relative;
+}
+.step-connector::after {
+  content: '';
+  position: absolute;
+  top: 28px;
+  right: -50%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #16a34a, #d97706);
+  z-index: 0;
 }
