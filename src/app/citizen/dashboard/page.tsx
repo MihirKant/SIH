@@ -187,6 +187,54 @@ function CitizenDashboardContent() {
   // Search & Copy state
   const [searchId, setSearchId] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [globalChallenge, setGlobalChallenge] = useState<FirestoreChallenge | null>(null);
+
+  // ── Global Tracking ID Bypass Search ──
+  useEffect(() => {
+    if (!searchId.trim()) {
+      setGlobalChallenge(null);
+      return;
+    }
+
+    const term = searchId.trim().toUpperCase();
+    if (!term.startsWith('JS-')) {
+      setGlobalChallenge(null);
+      return;
+    }
+
+    let isSubscribed = true;
+
+    (async () => {
+      try {
+        const { db } = await import('@/firebase');
+        const { collection, query, where, getDocs } = await import('firebase/firestore');
+
+        const q = query(
+          collection(db, 'challenges'),
+          where('trackingId', '==', term)
+        );
+
+        const snap = await getDocs(q);
+        if (!isSubscribed) return;
+
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          setGlobalChallenge({
+            id: doc.id,
+            ...(doc.data() as Omit<FirestoreChallenge, 'id'>),
+          });
+        } else {
+          setGlobalChallenge(null);
+        }
+      } catch (err) {
+        console.error('[Global Tracking Search Error]', err);
+      }
+    })();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [searchId]);
 
   // ── Real-Time Firestore Query for Current User ─────────────────────────────
   useEffect(() => {
@@ -244,15 +292,20 @@ function CitizenDashboardContent() {
 
   // ── Filtered Challenges by Search ID / Keyword ─────────────────────────────
   const filteredChallenges = useMemo(() => {
-    if (!searchId.trim()) return userChallenges;
+    const list = [...userChallenges];
+    if (globalChallenge && !list.some((c) => c.id === globalChallenge.id)) {
+      list.unshift(globalChallenge);
+    }
+
+    if (!searchId.trim()) return list;
     const term = searchId.trim().toLowerCase();
-    return userChallenges.filter((c) => {
+    return list.filter((c) => {
       const matchId = (c.trackingId || '').toLowerCase().includes(term) || c.id.toLowerCase().includes(term);
       const matchTitle = c.title.toLowerCase().includes(term);
       const matchDistrict = c.district.toLowerCase().includes(term);
       return matchId || matchTitle || matchDistrict;
     });
-  }, [userChallenges, searchId]);
+  }, [userChallenges, searchId, globalChallenge]);
 
   const copyTrackingId = (id: string) => {
     navigator.clipboard.writeText(id);
