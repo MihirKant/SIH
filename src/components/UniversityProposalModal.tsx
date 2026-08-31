@@ -18,6 +18,8 @@ import {
   Wrench
 } from 'lucide-react';
 import { ChallengeItem, UniversityItem, NepCreditType } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+
 
 interface Props {
   isOpen: boolean;
@@ -69,6 +71,7 @@ export default function UniversityProposalModal({
   university,
   onProposalSubmitted,
 }: Props) {
+  const { user } = useAuth();
   const facultyList = FACULTY_DIRECTORY[university.id] || FACULTY_DIRECTORY['univ-1'];
 
   const [projectTitle, setProjectTitle] = useState('');
@@ -160,6 +163,9 @@ export default function UniversityProposalModal({
         const challengeRef = doc(db, 'challenges', challenge.id);
         await updateDoc(challengeRef, {
           status: 'In Development',
+          isAdopted: true,
+          adoptedBy: user?.uid || 'HEI Admin',
+          adoptedAt: serverTimestamp(),
           assignedHEI: {
             name: university.name,
             heiName: university.name,
