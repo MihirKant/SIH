@@ -108,6 +108,11 @@ function StatusBadge({ status }: { status: string }) {
       className: 'bg-blue-100 text-blue-800 border-blue-200',
       icon: Zap,
     },
+    'Adopted for R&D': {
+      label: 'Adopted for R&D',
+      className: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      icon: GraduationCap,
+    },
     'Resolved': {
       label: 'Resolved',
       className: 'bg-green-100 text-green-800 border-green-200',
@@ -135,12 +140,12 @@ function StatusBadge({ status }: { status: string }) {
 interface AdoptModalProps {
   challenge: FirestoreChallenge;
   heiName: string;
-  userId?: string;
+  user: any;
   onClose: () => void;
   onSuccess: (trackingId: string, optimisticData: Partial<FirestoreChallenge>) => void;
 }
 
-function AdoptModal({ challenge, heiName, userId, onClose, onSuccess }: AdoptModalProps) {
+function AdoptModal({ challenge, heiName, user, onClose, onSuccess }: AdoptModalProps) {
   const [facultyMentor, setFacultyMentor] = useState('');
   const [studentLead, setStudentLead] = useState('');
   const [solutionSummary, setSolutionSummary] = useState('');
@@ -156,9 +161,11 @@ function AdoptModal({ challenge, heiName, userId, onClose, onSuccess }: AdoptMod
 
     // Prepare optimistic payload
     const optimisticData: Partial<FirestoreChallenge> = {
-      status: 'In Development',
+      status: 'Adopted for R&D',
       isAdopted: true,
-      adoptedBy: userId || 'HEI Admin',
+      adoptedBy: user?.uid || 'University Admin',
+      adoptedByName: user?.displayName || user?.name || 'Partner University',
+      adoptionType: 'R&D',
       adoptedAt: new Date(),
       assignedHEI: {
         name: heiName,
@@ -181,9 +188,11 @@ function AdoptModal({ challenge, heiName, userId, onClose, onSuccess }: AdoptMod
 
       const ref = doc(db, 'challenges', challenge.id);
       await updateDoc(ref, {
-        status: 'In Development',
+        status: 'Adopted for R&D',
         isAdopted: true,
-        adoptedBy: userId || 'HEI Admin',
+        adoptedBy: user?.uid || 'University Admin',
+        adoptedByName: user?.displayName || user?.name || 'Partner University',
+        adoptionType: 'R&D',
         adoptedAt: serverTimestamp(),
         assignedHEI: {
           name: heiName,
@@ -350,7 +359,7 @@ function ChallengeCard({
   challenge: FirestoreChallenge;
   onAdopt: (c: FirestoreChallenge) => void;
 }) {
-  const isAdopted = challenge.status === 'In Development';
+  const isAdopted = challenge.isAdopted === true || challenge.status?.includes('Adopted') || challenge.status === 'In Development';
   const submittedDate = challenge.submittedAt?.toDate?.()
     ? new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).format(
         challenge.submittedAt.toDate()
@@ -518,7 +527,7 @@ function HeiDashboardContent() {
     return matchSearch && matchDomain && matchDistrict && matchStatus;
   });
 
-  const adoptedCount = mergedChallenges.filter((c) => c.status === 'In Development').length;
+  const adoptedCount = mergedChallenges.filter((c) => c.isAdopted === true || c.status?.includes('Adopted') || c.status === 'In Development').length;
   const pendingCount = mergedChallenges.filter((c) => c.status === 'Pending AI Categorization').length;
 
   const handleAdoptSuccess = useCallback((trackingId: string, optimisticData?: Partial<FirestoreChallenge>) => {
@@ -541,7 +550,7 @@ function HeiDashboardContent() {
         <AdoptModal
           challenge={adoptTarget}
           heiName={user?.organization || 'University'}
-          userId={user?.uid}
+          user={user}
           onClose={() => setAdoptTarget(null)}
           onSuccess={handleAdoptSuccess}
         />

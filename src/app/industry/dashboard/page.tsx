@@ -119,6 +119,14 @@ function StatusBadge({ status }: { status: string }) {
       </span>
     );
   }
+  if (status === 'Adopted for R&D') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-100 text-indigo-900 border border-indigo-300">
+        <GraduationCap className="w-3 h-3 text-indigo-600" />
+        Adopted by HEI
+      </span>
+    );
+  }
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-blue-100 text-blue-900 border border-blue-300">
       <Briefcase className="w-3 h-3 text-blue-600" />
@@ -478,7 +486,14 @@ function InvestmentCard({
             <Tag className="w-3 h-3" />
             {challenge.domain}
           </span>
-          <StatusBadge status={challenge.status} />
+          {(challenge.isAdopted === true || challenge.status === 'Adopted for R&D') ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-100 text-indigo-900 border border-indigo-300">
+              <GraduationCap className="w-3.5 h-3.5 text-indigo-600" />
+              Adopted by HEI - Open for CSR Funding
+            </span>
+          ) : (
+            <StatusBadge status={challenge.status} />
+          )}
         </div>
 
         {/* Project Title */}
@@ -597,12 +612,14 @@ function IndustryDashboardContent() {
               ...(d.data() as Omit<FirestoreChallenge, 'id'>),
             }));
 
-            // Filter for projects adopted by HEI (In Development, Prototype Ready, Funded by CSR)
+            // Filter for projects adopted by HEI (In Development, Prototype Ready, Funded by CSR, Adopted for R&D)
             const rAndDDocs = docs.filter(
               (c) =>
                 c.status === 'In Development' ||
                 c.status === 'Prototype Ready' ||
                 c.status === 'Funded by CSR' ||
+                c.status === 'Adopted for R&D' ||
+                c.isAdopted === true ||
                 !!c.assignedHEI
             );
 
